@@ -60,6 +60,10 @@ async function loadGames() {
             <p>${game.status}</p>
             <p>${game.platform}</p>
             <p>${game.rating}</p>
+
+        <button class="delete-btn" data-id="${game.id}">
+            🗑 Supprimer
+        </button>
         `;
 
         container.appendChild(card);
@@ -69,3 +73,21 @@ async function loadGames() {
 // 🔥 important : exécution unique
 init();
 loadGames();
+
+document.addEventListener("click", async (e) => {
+
+    if (e.target.classList.contains("delete-btn")) {
+
+        const id = e.target.dataset.id;
+
+        await fetch("http://localhost/media-tracker/api/games.php", {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ id })
+        });
+
+        loadGames();
+    }
+});
