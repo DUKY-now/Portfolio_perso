@@ -8,7 +8,7 @@ let allGames = [];
 // ======================
 // API
 // ======================
-const API_URL = "http://localhost/media-tracker/api/games.php";
+const API_URL = "http://media.local/api/games.php";
 
 // ======================
 // LOAD GAMES

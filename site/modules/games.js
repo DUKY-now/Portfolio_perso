@@ -1,69 +1,93 @@
+import { checkSession } from "./session.js";
+
 console.log("games.js chargé ✔");
 
-// ======================
-// STATE GLOBAL
-// ======================
 let editingId = null;
 let editingCard = null;
 let allGames = [];
 
-const form = document.getElementById("game-form");
+const API = "http://localhost/media-tracker/api/games.php";
 
 // ======================
-// SUBMIT (CREATE / UPDATE)
+// INIT
 // ======================
-form.onsubmit = async (e) => {
+document.addEventListener("DOMContentLoaded", init);
+
+async function init() {
+
+    const form = document.getElementById("game-form");
+    if (!form) return;
+
+    const logged = await checkSession();
+
+    if (!logged) {
+        form.style.display = "none";
+        return;
+    }
+
+    form.style.display = "block";
+
+    bindEvents();
+    loadGames();
+}
+
+// ======================
+// EVENTS
+// ======================
+function bindEvents() {
+
+    const form = document.getElementById("game-form");
+
+    form.onsubmit = onSubmit;
+
+    document.addEventListener("click", onGlobalClick);
+
+    document.getElementById("cancel-edit")?.addEventListener("click", resetForm);
+}
+
+// ======================
+// SUBMIT
+// ======================
+async function onSubmit(e) {
 
     e.preventDefault();
 
-const game = {
-    title: document.getElementById("title").value,
-    status: document.getElementById("status").value,
-    platform: document.getElementById("platform").value,
-    rating: document.getElementById("rating").value,
-    review: document.getElementById("review").value,
-    image: document.getElementById("image").value,
-    link: document.getElementById("link").value
-};
+    const game = {
+        title: document.getElementById("title").value,
+        status: document.getElementById("status").value,
+        platform: document.getElementById("platform").value,
+        rating: document.getElementById("rating").value,
+        review: document.getElementById("review").value,
+        image: document.getElementById("image").value,
+        link: document.getElementById("link").value
+    };
 
-    if (editingId) {
+    const options = {
+        method: editingId ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(editingId ? { ...game, id: editingId } : game)
+    };
 
-        game.id = editingId;
-
-        await fetch("http://localhost/media-tracker/api/games.php", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(game)
-        });
-
-        editingId = null;
-
-    } else {
-
-        await fetch("http://localhost/media-tracker/api/games.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(game)
-        });
-    }
-
-    form.reset();
+    await fetch(API, options);
+    resetForm();
     loadGames();
-
-    form.querySelector("button").textContent = "Ajouter";
-
-    if (editingCard) {
-        editingCard.classList.remove("editing");
-        editingCard = null;
-    }
-};
+}
 
 // ======================
 // LOAD
 // ======================
 async function loadGames() {
 
-    const res = await fetch("http://localhost/media-tracker/api/games.php");
+    const res = await fetch(API, {
+        credentials: "include"
+    });
+
+    if (!res.ok) {
+        console.error("API error");
+        return;
+    }
+
     allGames = await res.json();
 
     renderGames(allGames);
@@ -75,6 +99,7 @@ async function loadGames() {
 function renderGames(games) {
 
     const container = document.getElementById("games-container");
+    if (!container) return;
 
     container.innerHTML = "";
 
@@ -83,140 +108,117 @@ function renderGames(games) {
         const card = document.createElement("div");
         card.className = "card";
 
-card.innerHTML = `
-    <div class="game-card">
+        card.innerHTML = `
+            <div class="game-card">
 
-        <img 
-            src="${game.image || 'https://via.placeholder.com/300x150'}" 
-            class="game-img"
-        >
+                <img src="${game.image || 'https://via.placeholder.com/300x150'}" class="game-img">
 
-        <h3>${game.title}</h3>
+                <h3>${game.title}</h3>
 
-        <p>${game.platform || "Plateforme inconnue"}</p>
+                <p>${game.platform || ""}</p>
 
-        <p class="status">${game.status}</p>
+                <p class="status">${game.status}</p>
 
-        ${game.link ? `
-            <a 
-                href="${game.link}" 
-                target="_blank" 
-                class="game-link"
-            >
-                Voir le jeu
-            </a>
-        ` : ""}
+                ${game.link ? `<a href="${game.link}" target="_blank">Voir</a>` : ""}
 
-        <div class="game-actions">
+                <div class="game-actions">
 
-            <button 
-                class="edit-btn" 
-                data-id="${game.id}"
-            >
-                ✏ Modifier
-            </button>
+                    <button class="edit-btn" data-id="${game.id}">✏</button>
+                    <button class="delete-btn" data-id="${game.id}">🗑</button>
 
-            <button 
-                class="delete-btn" 
-                data-id="${game.id}"
-            >
-                🗑 Supprimer
-            </button>
+                </div>
 
-        </div>
-
-    </div>
-`;
+            </div>
+        `;
 
         container.appendChild(card);
     });
 }
 
 // ======================
-// DELETE
+// GLOBAL CLICK
 // ======================
-document.addEventListener("click", async (e) => {
+function onGlobalClick(e) {
 
     if (e.target.classList.contains("delete-btn")) {
-
-        const id = e.target.dataset.id;
-
-        await fetch("http://localhost/media-tracker/api/games.php", {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ id })
-        });
-
-        loadGames();
+        deleteGame(e.target.dataset.id);
     }
-});
+
+    if (e.target.classList.contains("edit-btn")) {
+        startEdit(e.target.dataset.id);
+    }
+
+    if (e.target.dataset.filter) {
+        applyFilter(e.target.dataset.filter);
+    }
+}
+
+// ======================
+// DELETE
+// ======================
+async function deleteGame(id) {
+
+    await fetch(API, {
+        
+        method: "DELETE",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ id })
+    });
+
+    loadGames();
+}
 
 // ======================
 // EDIT
 // ======================
-document.addEventListener("click", (e) => {
+function startEdit(id) {
 
-    if (e.target.classList.contains("edit-btn")) {
+    const game = allGames.find(g => g.id == id);
+    if (!game) return;
 
-        const id = e.target.dataset.id;
+    document.getElementById("title").value = game.title;
+    document.getElementById("status").value = game.status;
+    document.getElementById("platform").value = game.platform;
+    document.getElementById("rating").value = game.rating;
+    document.getElementById("review").value = game.review;
+    document.getElementById("link").value = game.link;
+    document.getElementById("image").value = game.image;
 
-        const game = allGames.find(g => g.id == id);
+    editingId = id;
 
-        document.getElementById("title").value = game.title;
-        document.getElementById("status").value = game.status;
-        document.getElementById("platform").value = game.platform;
-        document.getElementById("rating").value = game.rating;
-        document.getElementById("review").value = game.review;
-        document.getElementById("link").value = game.link;
-        document.getElementById("image").value = game.image;
+    document.querySelector("#game-form button").textContent = "Modifier";
 
-        editingId = id;
-
-        form.querySelector("button").textContent = "Modifier";
-
-        if (editingCard) {
-            editingCard.classList.remove("editing");
-        }
-
-        editingCard = e.target.closest(".card");
-        editingCard.classList.add("editing");
-    }
-});
+    if (editingCard) editingCard.classList.remove("editing");
+}
 
 // ======================
-// CANCEL EDIT
+// RESET
 // ======================
-document.getElementById("cancel-edit")?.addEventListener("click", () => {
+function resetForm() {
 
     editingId = null;
 
+    const form = document.getElementById("game-form");
     form.reset();
+
     form.querySelector("button").textContent = "Ajouter";
 
     if (editingCard) {
         editingCard.classList.remove("editing");
         editingCard = null;
     }
-});
+}
 
 // ======================
-// FILTERS
+// FILTER
 // ======================
-document.addEventListener("click", (e) => {
+function applyFilter(filter) {
 
-    if (e.target.dataset.filter) {
+    const filtered = filter === "all"
+        ? allGames
+        : allGames.filter(g => g.status === filter);
 
-        const filter = e.target.dataset.filter;
-
-        const filtered = filter === "all"
-            ? allGames
-            : allGames.filter(g => g.status === filter);
-
-        renderGames(filtered);
-    }
-});
-
-// INIT
-loadGames();
+    renderGames(filtered);
+}

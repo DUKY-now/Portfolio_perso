@@ -8,7 +8,7 @@ let currentFilter = "all";
 // ======================
 async function loadGames() {
 
-    const res = await fetch("http://localhost/media-tracker/api/games.php");
+    const res = await fetch("http://media.local/api/games.php");
     allGames = await res.json();
 
     updateStats();

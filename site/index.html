@@ -4,31 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio - DUKYnow</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-
 <div id="navbar"></div>
 
 <section class="section">
-    <h2>Mes jeux<span id="counter-info"></span></h2>
+    <h2>Mes jeux</h2>
 
-<div class="stats">
-    <div class="stat">À faire: <span id="stat-wishlist">0</span></div>
-    <div class="stat">En cours: <span id="stat-playing">0</span></div>
-    <div class="stat">Terminé: <span id="stat-completed">0</span></div>
-</div>
+    <div class="stats">
+        <div>À faire: <span id="stat-wishlist">0</span></div>
+        <div>En cours: <span id="stat-playing">0</span></div>
+        <div>Terminé: <span id="stat-completed">0</span></div>
+    </div>
 
     <div class="filters">
         <button data-filter="all">Tous</button>
         <button data-filter="Terminé">Terminé</button>
         <button data-filter="En cours">En cours</button>
         <button data-filter="A faire">A faire</button>
-        <button data-filter="wishlist">Wishlist</button>        
+        <button data-filter="wishlist">Wishlist</button>
     </div>
 
     <div class="grid" id="home-games"></div>
@@ -36,7 +35,6 @@
 
 <div id="footer"></div>
 
-<script type="module" src="assets/js/main.js"></script>
-<script src="assets/js/home.js"></script>
+<script type="module" src="./assets/js/main.js"></script>
 </body>
 </html>

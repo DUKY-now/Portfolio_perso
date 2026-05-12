@@ -7,13 +7,12 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
         password: document.getElementById("password").value
     };
 
-    const res = await fetch("http://localhost/media-tracker/api/auth.php?action=login", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-    });
+    const res = await fetch("http://media.local/api/auth.php?action=login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(data)
+});
 
     const result = await res.json();
 
