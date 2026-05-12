@@ -6,9 +6,40 @@ console.log("games.js chargé ✔");
 let allGames = [];
 
 // ======================
-// API
+// API BASE
 // ======================
-const API_URL = "http://media.local/api/games.php";
+const API = "http://media.local/api";
+
+// ======================
+// INIT
+// ======================
+document.addEventListener("DOMContentLoaded", init);
+
+async function init() {
+
+    await importSteam(); // optionnel (tu peux enlever si tu veux manuel)
+
+    await loadGames();
+
+    initFilters();
+    initSearch();
+}
+
+// ======================
+// IMPORT STEAM
+// ======================
+async function importSteam() {
+
+    try {
+
+        await fetch(`${API}/import-steam.php`, {
+            credentials: "include"
+        });
+
+    } catch (err) {
+        console.warn("Steam import error:", err);
+    }
+}
 
 // ======================
 // LOAD GAMES
@@ -17,15 +48,20 @@ async function loadGames() {
 
     try {
 
-        const res = await fetch(API_URL);
+        const res = await fetch(`${API}/games.php`, {
+            credentials: "include"
+        });
 
-        allGames = await res.json();
+        const data = await res.json();
+
+        console.log("GAMES:", data);
+
+        allGames = Array.isArray(data) ? data : [];
 
         renderGames(allGames);
 
     } catch (err) {
-
-        console.error("Erreur chargement jeux :", err);
+        console.error("Load games error:", err);
     }
 }
 
@@ -36,18 +72,12 @@ function renderGames(games) {
 
     const container = document.getElementById("games-container");
 
-    container.innerHTML = "";
-
-    if (!games.length) {
-
-        container.innerHTML = `
-            <p class="empty">
-                Aucun jeu trouvé.
-            </p>
-        `;
-
+    if (!container) {
+        console.error("games-container introuvable");
         return;
     }
+
+    container.innerHTML = "";
 
     games.forEach(game => {
 
@@ -58,51 +88,15 @@ function renderGames(games) {
         card.innerHTML = `
             <div class="game-card">
 
-                <img 
-                    src="${game.image || 'https://via.placeholder.com/300x150'}"
-                    alt="${game.title}"
-                    class="game-img"
-                >
+                <img src="${game.image || 'https://via.placeholder.com/300x150'}">
 
-                <div class="game-content">
+                <h3>${game.title ?? "Sans titre"}</h3>
 
-                    <h3>${game.title}</h3>
+                <p>${game.platform ?? ""}</p>
 
-                    <p class="status">
-                        ${game.status}
-                    </p>
+                <p>${game.status ?? ""}</p>
 
-                    <p>
-                        ${game.platform || "Plateforme inconnue"}
-                    </p>
-
-                    ${
-                        game.rating
-                        ? `<p>⭐ ${game.rating}/5</p>`
-                        : ""
-                    }
-
-                    ${
-                        game.review
-                        ? `<p>${game.review}</p>`
-                        : ""
-                    }
-
-                    ${
-                        game.link
-                        ? `
-                            <a 
-                                href="${game.link}" 
-                                target="_blank"
-                                class="game-link"
-                            >
-                                Voir le jeu
-                            </a>
-                        `
-                        : ""
-                    }
-
-                </div>
+                ${game.link ? `<a href="${game.link}" target="_blank">Voir</a>` : ""}
 
             </div>
         `;
@@ -114,45 +108,40 @@ function renderGames(games) {
 // ======================
 // SEARCH
 // ======================
-document
-    .getElementById("search")
-    ?.addEventListener("input", (e) => {
+function initSearch() {
+
+    const search = document.getElementById("search");
+
+    if (!search) return;
+
+    search.addEventListener("input", (e) => {
 
         const value = e.target.value.toLowerCase();
 
         const filtered = allGames.filter(game =>
-            game.title.toLowerCase().includes(value)
+            (game.title || "").toLowerCase().includes(value)
         );
 
         renderGames(filtered);
     });
+}
 
 // ======================
 // FILTERS
 // ======================
-document.addEventListener("click", (e) => {
+function initFilters() {
 
-    if (!e.target.dataset.filter) {
-        return;
-    }
+    document.addEventListener("click", (e) => {
 
-    const filter = e.target.dataset.filter;
+        if (!e.target.dataset.filter) return;
 
-    document
-        .querySelectorAll(".filters button")
-        .forEach(btn => btn.classList.remove("active"));
+        const filter = e.target.dataset.filter;
 
-    e.target.classList.add("active");
+        const filtered =
+            filter === "all"
+                ? allGames
+                : allGames.filter(g => g.status === filter);
 
-    const filtered =
-        filter === "all"
-            ? allGames
-            : allGames.filter(g => g.status === filter);
-
-    renderGames(filtered);
-});
-
-// ======================
-// INIT
-// ======================
-loadGames();
+        renderGames(filtered);
+    });
+}

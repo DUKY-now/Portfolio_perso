@@ -1,10 +1,7 @@
 <?php
 
 session_start();
-
 header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: http://media.local");
-header("Access-Control-Allow-Credentials: true");
 
 if (!isset($_SESSION["user_id"])) {
     http_response_code(401);
@@ -12,45 +9,96 @@ if (!isset($_SESSION["user_id"])) {
     exit;
 }
 
-$apiKey = "783A99D50004151DF6ABA2F762EE91D9";
-$steamId = $_SESSION["steam_id"];
-
 $conn = new mysqli("localhost", "root", "", "media_tracker");
 
-$url = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=$apiKey&steamid=$steamId&include_appinfo=true";
-
-$response = file_get_contents($url);
-$data = json_decode($response, true);
-
-if (!isset($data["response"]["games"])) {
-    echo json_encode(["error" => "No games"]);
+if ($conn->connect_error) {
+    http_response_code(500);
+    echo json_encode(["error" => "DB error"]);
     exit;
 }
 
 $user_id = $_SESSION["user_id"];
+
+// 🔥 récupérer Steam ID depuis la DB
+$res = $conn->query("SELECT steam_id FROM users WHERE id=$user_id");
+$user = $res->fetch_assoc();
+
+if (!$user || !$user["steam_id"]) {
+    echo json_encode(["error" => "No Steam ID set"]);
+    exit;
+}
+
+$steamId = $user["steam_id"];
+
+$apiKey = "783A99D50004151DF6ABA2F762EE91D9";
+
+$url = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=$apiKey&steamid=$steamId&include_appinfo=true&include_played_free_games=true";
+
+$response = file_get_contents($url);
+
+if (!$response) {
+    echo json_encode(["error" => "Steam API failed"]);
+    exit;
+}
+
+$data = json_decode($response, true);
+
+if (!isset($data["response"]["games"])) {
+    echo json_encode(["error" => "No games found"]);
+    exit;
+}
+
 $imported = 0;
 
 foreach ($data["response"]["games"] as $game) {
 
     $appid = $game["appid"];
+    $title = $conn->real_escape_string($game["name"]);
+    $playtime = intval($game["playtime_forever"] / 60);
 
-    $check = $conn->query("SELECT id FROM games WHERE steam_appid=$appid AND user_id=$user_id");
+    $image = "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/$appid/header.jpg";
+    $link = "https://store.steampowered.com/app/$appid";
 
-    if ($check->num_rows > 0) continue;
+    $status = $playtime > 0 ? "En cours" : "Wishlist";
 
-    $conn->query("
-        INSERT INTO games (user_id, steam_appid, title, status, platform, playtime, image, link)
-        VALUES (
-            $user_id,
-            $appid,
-            '" . $conn->real_escape_string($game["name"]) . "',
-            'Wishlist',
-            'Steam',
-            0,
-            '',
-            ''
-        )
+    // éviter doublon PAR USER
+    $check = $conn->query("
+        SELECT id FROM games 
+        WHERE steam_appid=$appid AND user_id=$user_id
     ");
+
+    if ($check && $check->num_rows > 0) continue;
+
+    $result = $conn->query("
+    INSERT INTO games (
+        user_id,
+        steam_appid,
+        title,
+        status,
+        platform,
+        playtime,
+        image,
+        link
+    ) VALUES (
+        $user_id,
+        $appid,
+        '$title',
+        '$status',
+        'Steam',
+        $playtime,
+        '$image',
+        '$link'
+    )
+");
+
+if (!$result) {
+    echo json_encode([
+        "error" => "SQL ERROR",
+        "sql_error" => $conn->error,
+        "appid" => $appid
+    ]);
+    exit;
+}
 
     $imported++;
 }

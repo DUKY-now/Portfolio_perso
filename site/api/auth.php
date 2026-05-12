@@ -102,3 +102,21 @@ if ($action === "me") {
     ]);
     exit;
 }
+
+// UPDATE STEAM ID
+if ($action === "update_steam") {
+
+    $data = json_decode(file_get_contents("php://input"), true);
+
+    $steam = $conn->real_escape_string($data["steam_id"]);
+    $user_id = $_SESSION["user_id"];
+
+    $conn->query("
+        UPDATE users 
+        SET steam_id='$steam' 
+        WHERE id=$user_id
+    ");
+
+    echo json_encode(["success" => true]);
+    exit;
+}
