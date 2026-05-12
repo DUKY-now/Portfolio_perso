@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Inscription</title>
+
+    <style>
+        body {
+            font-family: Inter, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #111;
+            color: white;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 300px;
+        }
+
+        input, button {
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+        }
+
+        button {
+            background: #4cafef;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<form id="register-form">
+
+    <h2>Créer un compte</h2>
+
+    <input type="text" id="username" placeholder="Pseudo" required>
+
+    <input type="email" id="email" placeholder="Email" required>
+
+    <input type="password" id="password" placeholder="Mot de passe" required>
+
+    <button type="submit">S'inscrire</button>
+
+    <p id="msg"></p>
+
+</form>
+
+<script>
+const form = document.getElementById("register-form");
+const msg = document.getElementById("msg");
+
+form.addEventListener("submit", async (e) => {
+
+    e.preventDefault();
+
+    const data = {
+        username: document.getElementById("username").value,
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value
+    };
+
+    try {
+
+        const res = await fetch("http://localhost/media-tracker/api/auth.php?action=register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        console.log(result);
+
+        if (result.success) {
+
+            msg.textContent = "Compte créé ! Redirection...";
+
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 1000);
+
+        } else {
+            msg.textContent = result.error || "Erreur";
+        }
+
+    } catch (err) {
+        console.error(err);
+        msg.textContent = "Erreur serveur";
+    }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - DUKYnow</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/navbar.css">
+</head>
+<body>
+
+<div id="navbar"></div>
+
+<section id="games" class="section">
+
+    <h2>Mes jeux</h2>
+
+    <!-- FORMULAIRE -->
+    <form id="game-form" class="game-form">
+
+        <input type="text" id="title" placeholder="Nom du jeu" required>
+
+        <select id="status">
+            <option value="wishlist">Wishlist</option>
+            <option value="A faire">A faire</option>
+            <option value="En cours">En cours</option>
+            <option value="Terminé">Terminé</option>
+            <option value="100%">100%</option>
+        </select>
+
+        <input type="text" id="platform" placeholder="Plateforme">
+
+        <input type="text" id="image" placeholder="Image URL">
+
+        <input type="text" id="link" placeholder="Lien du jeu">
+
+        <input type="number" id="rating" min="0" max="5" placeholder="Note /5">
+
+        <textarea id="review" placeholder="Votre avis"></textarea>
+
+        <button type="submit" onclick="console.log('CLICK BUTTON')">
+    Ajouter
+</button>
+<button type="button" id="cancel-edit">Annuler</button>
+
+    </form>
+
+    <input id="search" placeholder="Rechercher un jeu...">
+<div class="filters">
+    <button data-filter="all">Tous</button>
+    <button data-filter="wishlist">Wishlist</button>
+    <button data-filter="A faire">A faire</button>
+    <button data-filter="En cours">En cours</button>
+    <button data-filter="Terminé">Terminé</button>
+    <button data-filter="100%">100%</button>
+</div>
+
+    <!-- LISTE DES JEUX -->
+    <div class="grid" id="games-container"></div>
+</section>
+
+<div id="footer"></div>
+
+<script type="module" src="assets/js/main.js"></script>
+<script src="assets/js/admin.js"></script>
+</body>
+</html>

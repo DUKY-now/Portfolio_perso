@@ -1,8 +1,7 @@
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #0b0614;
-    color: #ffffff;
+    background: linear-gradient(120deg, #0f0f0f, #1a1a1a);
+    color: white;
+    font-family: 'Inter', sans-serif;
 }
 
 
@@ -37,17 +36,31 @@ h2 {
 }
 
 .card {
-    background: #140a24;
-    padding: 20px;
-    border-radius: 10px;
-    border: 1px solid #2a1450;
-    transition: 0.3s;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: 0.2s ease;
 }
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 
 .card:hover {
     transform: translateY(-5px);
-    border-color: #b36bff;
+    backdrop-filter: blur(15px);
 }
+
+
+
+
 
 .card h3 {
     color: #b36bff;
@@ -79,6 +92,20 @@ h2 {
     color: white;
 }
 
+.game-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.game-actions button {
+    flex: 1;
+}
+
+.status {
+    opacity: 0.7;
+    font-size: 14px;
+}
 .game-form button {
 
     padding: 12px;
@@ -99,4 +126,84 @@ h2 {
 .game-form button:hover {
 
     opacity: 0.8;
+}
+
+.game-card {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    overflow: hidden;
+    padding: 10px;
+    transition: 0.2s ease;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+}
+
+.game-img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.game-link {
+    display: inline-block;
+    margin-top: 8px;
+    color: #4cafef;
+    text-decoration: none;
+}
+
+.game-link:hover {
+    text-decoration: underline;
+}
+
+.editing {
+    border: 2px solid #b36bff;
+    transform: scale(1.02);
+}
+
+#home-games {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.filters button {
+    padding: 6px 12px;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    background: #222;
+    color: white;
+    transition: 0.2s;
+}
+
+.filters button:hover {
+    background: #444;
+}
+
+.filters button.active {
+    background: #4caf50;
+}
+
+.stats {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.stat {
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.05);
+    font-size: 14px;
 }
