@@ -1,0 +1,10 @@
+name = "portfolio-perso"
+compatibility_date = "2026-05-12"
+
+pages_build_output_dir = "site"
+
+
+[[d1_databases]]
+binding = "DB"
+database_name = "media_tracker"
+database_id = "2dda8d4d-0c07-4f72-bef0-aa9b561aebd5"

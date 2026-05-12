@@ -1,0 +1,102 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0b0614;
+    color: #ffffff;
+}
+
+
+
+/* HERO */
+.hero {
+    text-align: center;
+    padding: 80px 20px;
+    background: linear-gradient(180deg, #120a1f, #0b0614);
+}
+
+.hero h1 {
+    color: #b36bff;
+}
+
+/* SECTIONS */
+.section {
+    padding: 60px 20px;
+    max-width: 1000px;
+    margin: auto;
+}
+
+h2 {
+    color: #b36bff;
+}
+
+/* CARDS */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: #140a24;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #2a1450;
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    border-color: #b36bff;
+}
+
+.card h3 {
+    color: #b36bff;
+}
+
+.card p {
+    color: #ccc;
+}
+
+.game-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+.game-form input,
+.game-form select,
+.game-form textarea {
+
+    padding: 12px;
+
+    border-radius: 8px;
+
+    border: 1px solid #2a1450;
+
+    background: #140a24;
+
+    color: white;
+}
+
+.game-form button {
+
+    padding: 12px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #b36bff;
+
+    color: white;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+}
+
+.game-form button:hover {
+
+    opacity: 0.8;
+}

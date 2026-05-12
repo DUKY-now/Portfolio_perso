@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - DUKYnow</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/navbar.css">
+</head>
+<body>
+
+<div id="navbar"></div>
+
+<header class="hero">
+    <h1>Bonjour, je suis Stéphane</h1>
+    <p>Développeur web</p>
+</header>
+
+<section id="about" class="section">
+    <h2>À propos</h2>
+    <p>Je développe des sites web modernes.</p>
+</section>
+
+<section id="projects" class="section">
+    <h2>Projets</h2>
+    <div class="grid">
+        <div class="card">Projet 1</div>
+        <div class="card">Projet 2</div>
+    </div>
+</section>
+
+<section id="games" class="section">
+
+    <h2>Mes jeux</h2>
+
+    <!-- FORMULAIRE -->
+    <form id="game-form" class="game-form">
+
+        <input type="text" id="title" placeholder="Nom du jeu" required>
+
+        <select id="status">
+            <option value="wishlist">Wishlist</option>
+            <option value="playing">En cours</option>
+            <option value="completed">Terminé</option>
+        </select>
+
+        <input type="text" id="platform" placeholder="Plateforme">
+
+        <input type="number" id="rating" min="0" max="5" placeholder="Note /5">
+
+        <textarea id="review" placeholder="Votre avis"></textarea>
+
+        <button type="submit" onclick="console.log('CLICK BUTTON')">
+    Ajouter
+</button>
+
+    </form>
+
+    <!-- LISTE DES JEUX -->
+    <div class="grid" id="games-container"></div>
+
+</section>
+
+<div id="footer"></div>
+
+<script type="module" src="assets/js/main.js"></script>
+</body>
+</html>
